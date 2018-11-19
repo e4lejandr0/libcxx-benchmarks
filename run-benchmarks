@@ -1,0 +1,66 @@
+#!/bin/bash
+
+log() {
+	printf "[ %s ] %s\n" "$(date +'%Y%m%d:%H%S')" "$*"
+}
+
+run-test() {
+
+	# Times to run a single test
+	local MaxRuns=5
+
+	# Input Params
+	local -n input_files=$2
+	local -n test_regexes=$1
+	local test_name="$3"
+
+	# Perf config
+	local perf_exe=perf
+	local perf_flags=('record' '-g')
+
+	local test_command="$PWD/bin/bench"
+	local results_dir="results"
+	local result_name_fmt="${test_name}-%s-%d.perf"
+	
+	
+	for input_file in "${input_files[@]}"; do
+		for regex in "${test_regexes[@]}"; do
+			perf_cmd="${perf_exe} ${perf_flags[@]} -o '${results_dir}/${result_name_fmt}' '${test_command}' '%s' '%s'"
+			for i in $(seq 1 $MaxRuns); do
+				# printf "${perf_exe} ${perf_flags[1]} -o '${results_dir}/${test_name}-%s-${i}.perf' '%s' %s\n" "${regex}" "${regex}" "${input_file}"
+				printf "${perf_cmd}\n" "${regex}" "${i}" "${regex}" "${input_file}"
+			done
+		done
+	done | tee commands.log | parallel
+}
+
+run-passwd-test() {
+
+	input=('input/rockyou.txt')
+	regexes=('^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$'
+		 '^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$'
+		 '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$'
+		 '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'
+		 '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,10}$')
+
+	run-test regexes input 'passwd'
+}
+
+run-email-test() {
+	:
+}
+
+main() {
+
+	log "Starting benchmarking process..."
+
+	log "Running password validation tests"
+	run-passwd-test
+
+	#log "Running email validation tests"
+	# run-email-test
+
+	
+}
+
+main "$@"
