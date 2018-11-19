@@ -42,12 +42,23 @@ run-passwd-test() {
 		 '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$'
 		 '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'
 		 '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,10}$')
+	if [ ! -f "${input[0]}"  ]; then
+		xzcat < input/rockyou.txt.xz > input/rockyou.txt
+	fi
 
 	run-test regexes input 'passwd'
 }
 
 run-email-test() {
-	:
+	input=('input/lkml.html')
+	regexes=('.*\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}.*'
+		 '.*([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?).*')
+ 
+	if [ ! -f "${input[0]}" ]; then
+		xzcat input/lkml.html.xz > input/lkml.html
+	fi
+
+	run-test regexes input 'email'
 }
 
 main() {
@@ -57,10 +68,9 @@ main() {
 	log "Running password validation tests"
 	run-passwd-test
 
-	#log "Running email validation tests"
-	# run-email-test
+	log "Running email validation tests"
+	run-email-test
 
-	
 }
 
-main "$@"
+main "$@" 2>&1 | tee benchmark.log
