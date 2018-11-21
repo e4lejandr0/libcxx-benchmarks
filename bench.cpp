@@ -3,8 +3,6 @@
 #include <regex>
 #include <array>
 
-#define BUFSIZE 512 * 1024
-
 int main(int argc, char** argv) {
 
 	if(argc != 3) {

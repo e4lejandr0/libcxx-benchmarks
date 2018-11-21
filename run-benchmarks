@@ -31,7 +31,7 @@ run-test() {
 				printf "${perf_cmd}\n" "${regex}" "${i}" "${regex}" "${input_file}"
 			done
 		done
-	done | tee commands.log | parallel
+	done | tee --append commands.log | parallel
 }
 
 run-passwd-test() {

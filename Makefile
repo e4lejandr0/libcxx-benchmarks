@@ -29,3 +29,7 @@ clean-results:
 .PHONY: clean-logs
 clean-logs:
 	@rm *log
+
+.PHONY: results
+results:
+	./run-benchmark
