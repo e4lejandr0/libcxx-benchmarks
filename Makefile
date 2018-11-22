@@ -32,4 +32,4 @@ clean-logs:
 
 .PHONY: results
 results:
-	./run-benchmark
+	./run-benchmarks
